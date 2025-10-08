@@ -20,7 +20,7 @@ provider "aws" {
 }
 # Reference: https://github.com/aws-ia/terraform-aws-control_tower_account_factory
 module "aft-initiator" {
-  source  = "aws-ia/control_tower_account_factory/aws"
+  source  = "ASHUTUP-Worldline/control_tower_account_factory/aws" #"aws-ia/control_tower_account_factory/aws"
   version = "1.16.0" #"1.10.3"
 
   # Account IDs
@@ -46,8 +46,8 @@ module "aft-initiator" {
   aft_feature_cloudtrail_data_events      = true
   aft_feature_delete_default_vpcs_enabled = true
   aft_feature_enterprise_support          = true
-  aft_metrics_reporting                   = true
-  aft_vpc_endpoints                       = true
+  aft_metrics_reporting                   = false #true
+  aft_vpc_endpoints                       = false #true
   cloudwatch_log_group_retention          = 90
   maximum_concurrent_customizations       = 10
 #   terraform_version                       = "1.5.3" # Released July 12, 2023
