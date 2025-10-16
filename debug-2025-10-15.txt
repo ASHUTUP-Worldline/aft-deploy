@@ -1,0 +1,28 @@
+$ terraform state list|grep -i pipeline|grep -i codebuild
+
+- terraform state show 'module.aft-initiator.module.aft_code_repositories.aws_codebuild_project.account_provisioning_customizations_pipeline'
+-- resource "aws_codebuild_project" "account_provisioning_customizations_pipeline"
+-- arn = "arn:aws:codebuild:ap-southeast-1:658659131265:project/ct-aft-account-provisioning-customizations"
+
+- terraform state show 'module.aft-initiator.module.aft_customizations.aws_codebuild_project.aft_create_pipeline'
+-- resource "aws_codebuild_project" "aft_create_pipeline"
+-- arn = "arn:aws:codebuild:ap-southeast-1:658659131265:project/aft-create-pipeline"
+
+$ terraform state list|grep -i state_machine
+
+- terraform state show 'module.aft-initiator.module.aft_account_provisioning_framework.aws_sfn_state_machine.aft_account_provisioning_framework_sfn'
+-- resource "aws_sfn_state_machine" "aft_account_provisioning_framework_sfn"
+-- arn = "arn:aws:states:ap-southeast-1:658659131265:stateMachine:aft-account-provisioning-framework"
+
+- terraform state show 'module.aft-initiator.module.aft_customizations.aws_sfn_state_machine.aft_invoke_customizations_sfn'
+-- resource "aws_sfn_state_machine" "aft_invoke_customizations_sfn"
+-- arn = "arn:aws:states:ap-southeast-1:658659131265:stateMachine:aft-invoke-customizations"
+
+- terraform state show 'module.aft-initiator.module.aft_feature_options.aws_sfn_state_machine.aft_features'
+-- resource "aws_sfn_state_machine" "aft_features"
+-- arn = "arn:aws:states:ap-southeast-1:658659131265:stateMachine:aft-feature-options"
+
+Missing: aft-account-provisioning-customizations
+- terraform state show 'module.aft-initiator.module.aft_feature_options.aws_sfn_state_machine.aft_account_provisioning_customizations'
+
+find . -type f -exec grep -l "aft_account_provisioning_customizations" {} \; | xargs grep -l "aws_sfn_state_machine"

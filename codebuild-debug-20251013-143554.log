@@ -1,0 +1,125 @@
+=== CodeBuild Debug Report ===
+Project: python-layer-builder-aft-common-koxxighc
+Region: ap-southeast-1
+Time: Mon 13 Oct 2025 14:35:54 +08
+================================
+Getting latest build information...
+Latest Build ID: python-layer-builder-aft-common-koxxighc:71d1d569-a024-4e73-9682-622a3a2691b8
+---------------------------------------------------
+|                 BatchGetBuilds                  |
++------------+------------------------------------+
+|  EndTime   |  2025-10-13T14:20:31.497000+08:00  |
+|  Phase     |  COMPLETED                         |
+|  StartTime |  2025-10-13T14:15:08.994000+08:00  |
+|  Status    |  FAILED                            |
++------------+------------------------------------+
+Fetching build logs...
+Log Stream: build-logs/ff2d5447-9b8d-4a7d-9af3-f19677f8ce13
+b/39256834950445795862700597097067223626232100373942763520/s	f/39256995515811225283187216154238786694434943432937963520/s
+Checking project configuration...
+{
+    "Environment": {
+        "type": "LINUX_CONTAINER",
+        "image": "aws/codebuild/amazonlinux2-x86_64-standard:5.0",
+        "computeType": "BUILD_GENERAL1_MEDIUM",
+        "environmentVariables": [
+            {
+                "name": "PYTHON_VERSION",
+                "value": "3.12",
+                "type": "PLAINTEXT"
+            },
+            {
+                "name": "BUCKET_NAME",
+                "value": "aft-customizations-pipeline-658659131265",
+                "type": "PLAINTEXT"
+            },
+            {
+                "name": "SSM_AWS_MODULE_SOURCE",
+                "value": "/aft/config/aft-pipeline-code-source/repo-url",
+                "type": "PLAINTEXT"
+            },
+            {
+                "name": "SSM_AWS_MODULE_GIT_REF",
+                "value": "/aft/config/aft-pipeline-code-source/repo-git-ref",
+                "type": "PLAINTEXT"
+            }
+        ],
+        "privilegedMode": false,
+        "imagePullCredentialsType": "CODEBUILD"
+    },
+    "ServiceRole": "arn:aws:iam::658659131265:role/python-layer-builder-aft-common-koxxighc",
+    "Source": {
+        "type": "NO_SOURCE",
+        "gitCloneDepth": 0,
+        "buildspec": "# Copyright Amazon.com, Inc. or its affiliates. All rights reserved.\n# SPDX-License-Identifier: Apache-2.0\n#\nversion: 0.2\n\nphases:\n  install:\n    runtime-versions:\n      python: $PYTHON_VERSION\n    commands:\n      - DEFAULT_PATH=$(pwd)\n      - AWS_MODULE_SOURCE=$(aws ssm get-parameter --name $SSM_AWS_MODULE_SOURCE --query \"Parameter.Value\" --output text)\n      - AWS_MODULE_GIT_REF=$(aws ssm get-parameter --name $SSM_AWS_MODULE_GIT_REF --query \"Parameter.Value\" --output text)\n      # URL Without Access ID\n      - URL=$(echo \"$AWS_MODULE_SOURCE\" | awk '{split($0,a,\"@\"); print a[2]}')\n      - |\n        ssh_key_parameter=$(aws ssm get-parameter --name /aft/config/aft-ssh-key --with-decryption 2> /dev/null || echo \"None\")\n        if [[ $ssh_key_parameter != \"None\" ]]; then\n          ssh_key=$(jq --raw-output \".Parameter.Value\" <<< $ssh_key_parameter)\n          mkdir -p ~/.ssh\n          echo \"Host *\" >> ~/.ssh/config\n          echo \"StrictHostKeyChecking no\" >> ~/.ssh/config\n          echo \"UserKnownHostsFile=/dev/null\" >> ~/.ssh/config\n          echo \"$ssh_key\" > ~/.ssh/ssh_key\n          echo -e \"\\n\\n\" >>  ~/.ssh/ssh_key\n          chmod 600 ~/.ssh/ssh_key\n          eval \"$(ssh-agent -s)\"\n          ssh-add ~/.ssh/ssh_key\n        fi\n      - git config --global credential.helper '!aws codecommit credential-helper $@'\n      - git config --global credential.UseHttpPath true\n      - echo \"Building aft_common from ${URL}:${AWS_MODULE_GIT_REF}\"\n      - git clone -b $AWS_MODULE_GIT_REF $AWS_MODULE_SOURCE aws-aft-core-framework\n      - python3 -m pip install virtualenv\n      - python3 -m venv .venv\n      - . .venv/bin/activate\n      - python3 -m pip install -U pip\n      - python3 -m pip install --upgrade 'setuptools>=70.0.0'\n      - python3 -m pip install ./aws-aft-core-framework/sources/aft-lambda-layer\n  build:\n    commands:\n      - mkdir -p python\n      - ls\n      - mv -v ./.venv/lib/ ./python/\n      - zip -r layer.zip python\n      - aws s3 cp layer.zip s3://${BUCKET_NAME}/layer.zip\n",
+        "insecureSsl": false
+    },
+    "Cache": {
+        "type": "NO_CACHE"
+    }
+}
+Checking IAM role permissions...
+Role Name: python-layer-builder-aft-common-koxxighc
+Attached Policies:
+--------------------------
+|ListAttachedRolePolicies|
++------------------------+
+Inline Policies:
+--------------------------------------------
+|             ListRolePolicies             |
++------------------------------------------+
+||               PolicyNames              ||
+|+----------------------------------------+|
+||  terraform-2025101305335124440000000c  ||
+|+----------------------------------------+|
+Checking recent build status...
+Build ID: python-layer-builder-aft-common-koxxighc:71d1d569-a024-4e73-9682-622a3a2691b8
+-------------------------------------------------------------
+|                      BatchGetBuilds                       |
++-----------+------------------------------------+----------+
+|   Phase   |             StartTime              | Status   |
++-----------+------------------------------------+----------+
+|  COMPLETED|  2025-10-13T14:15:08.994000+08:00  |  FAILED  |
++-----------+------------------------------------+----------+
+Build ID: python-layer-builder-aft-common-koxxighc:ff2d5447-9b8d-4a7d-9af3-f19677f8ce13
+-------------------------------------------------------------
+|                      BatchGetBuilds                       |
++-----------+------------------------------------+----------+
+|   Phase   |             StartTime              | Status   |
++-----------+------------------------------------+----------+
+|  COMPLETED|  2025-10-13T14:06:44.994000+08:00  |  FAILED  |
++-----------+------------------------------------+----------+
+Checking VPC configuration...
+{
+    "vpcId": "vpc-04c8b9cae8e5218e6",
+    "subnets": [
+        "subnet-0bd280d792bed8026",
+        "subnet-00222f7f27b5f34f3"
+    ],
+    "securityGroupIds": [
+        "sg-0d5d09cc1c485b9a8"
+    ]
+}
+Checking environment variables...
+[
+    {
+        "name": "PYTHON_VERSION",
+        "value": "3.12",
+        "type": "PLAINTEXT"
+    },
+    {
+        "name": "BUCKET_NAME",
+        "value": "aft-customizations-pipeline-658659131265",
+        "type": "PLAINTEXT"
+    },
+    {
+        "name": "SSM_AWS_MODULE_SOURCE",
+        "value": "/aft/config/aft-pipeline-code-source/repo-url",
+        "type": "PLAINTEXT"
+    },
+    {
+        "name": "SSM_AWS_MODULE_GIT_REF",
+        "value": "/aft/config/aft-pipeline-code-source/repo-git-ref",
+        "type": "PLAINTEXT"
+    }
+]
